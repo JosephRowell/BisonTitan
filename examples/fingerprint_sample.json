@@ -1,0 +1,42 @@
+{
+  "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+  "ip": {
+    "origin": "203.0.113.42"
+  },
+  "resolution": "1920x1080",
+  "geo": {
+    "timezone": "-05:00 America/New_York"
+  },
+  "hardware": {
+    "memory": "8GB",
+    "threads": "8",
+    "canvas": "Real",
+    "webgl": "Real"
+  },
+  "storage": {
+    "save_tabs": true,
+    "save_history": true,
+    "local_storage": true
+  },
+  "browser": {
+    "plugins": true,
+    "extensions": true,
+    "fonts": "Masked (119)"
+  },
+  "fingerprint_score": 0.85,
+  "risk": "Low",
+  "platform": "Win32",
+  "language": "en-US",
+  "languages": ["en-US", "en"],
+  "color_depth": 24,
+  "pixel_ratio": 1.0,
+  "do_not_track": false,
+  "webdriver_detected": false,
+  "headers": {},
+  "recommendations": [
+    "Consider using canvas fingerprint protection (e.g., CanvasBlocker extension)",
+    "WebGL fingerprinting enabled - consider WebGL blocker",
+    "High font count (119) increases uniqueness - consider font blocking"
+  ],
+  "captured_at": "2024-01-15T10:30:00+00:00"
+}

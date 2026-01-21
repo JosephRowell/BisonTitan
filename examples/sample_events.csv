@@ -1,0 +1,13 @@
+event_id,source,category,time_created,computer,user,message
+4625,Security,Security,2024-01-15T10:00:00,WORKSTATION,attacker,Failed login attempt from 192.168.1.100
+4625,Security,Security,2024-01-15T10:00:30,WORKSTATION,attacker,Failed login attempt from 192.168.1.100
+4625,Security,Security,2024-01-15T10:01:00,WORKSTATION,attacker,Failed login attempt from 192.168.1.100
+4625,Security,Security,2024-01-15T10:01:30,WORKSTATION,attacker,Failed login attempt from 192.168.1.100
+4625,Security,Security,2024-01-15T10:02:00,WORKSTATION,attacker,Failed login attempt from 192.168.1.100
+4625,Security,Security,2024-01-15T10:02:30,WORKSTATION,attacker,Failed login attempt from 192.168.1.100
+4624,Security,Security,2024-01-15T10:03:00,WORKSTATION,admin,Successful login
+4732,Security,Security,2024-01-15T10:05:00,WORKSTATION,hacker,Member added to Administrators group
+4720,Security,Security,2024-01-15T10:10:00,WORKSTATION,admin,User account 'backdoor' created
+4740,Security,Security,2024-01-15T10:15:00,WORKSTATION,victim,Account locked out
+7045,Service Control Manager,System,2024-01-15T10:20:00,WORKSTATION,SYSTEM,New service 'SuspiciousSvc' installed
+1102,Security,Security,2024-01-15T10:30:00,WORKSTATION,attacker,Security audit log was cleared

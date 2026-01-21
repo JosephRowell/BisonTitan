@@ -1,0 +1,329 @@
+# BisonTitan Event Baseline Configuration
+# Sprint 8 - Advanced Noise Filtering
+#
+# Purpose: Define known benign events to suppress, reducing 19k+ events to actionable alerts
+#
+# Structure:
+#   benign_events: Events that are always safe to suppress
+#   benign_users: System accounts that generate routine events
+#   benign_sources: IP addresses/hosts known to be safe
+#   event_filters: Rules for filtering specific event types
+#   ai_suggested_rules: Auto-generated rules from scan analysis
+#
+# Usage:
+#   Load with LogAnalyzer.load_baseline()
+#   Apply with LogAnalyzer.filter_with_baseline()
+#   Toggle in GUI: Log Analysis -> Baseline Filtering checkbox
+
+version: "1.0"
+last_updated: "2026-01-21"
+description: "Baseline noise filtering for Windows event logs"
+
+# ============================================================================
+# Benign Event IDs - Always suppress these unless other criteria match
+# ============================================================================
+benign_events:
+  # Routine logon/logoff events
+  - event_id: 4634
+    description: "Logoff - routine session end"
+    suppress: true
+
+  - event_id: 4647
+    description: "User initiated logoff"
+    suppress: true
+
+  - event_id: 4648
+    description: "Explicit credential logon (RunAs)"
+    suppress_if:
+      user_pattern: "SYSTEM|LOCAL SERVICE|NETWORK SERVICE"
+
+  - event_id: 4672
+    description: "Special privileges assigned"
+    suppress_if:
+      user_pattern: "SYSTEM|Administrators"
+      note: "Normal for admin accounts"
+
+  # Routine service events
+  - event_id: 7036
+    description: "Service state change"
+    suppress_if:
+      service_pattern: "Windows Update|BITS|WSearch|Spooler|EventLog"
+
+  - event_id: 7034
+    description: "Service crashed"
+    suppress: false
+    note: "Always investigate service crashes"
+
+# ============================================================================
+# Benign Users - System accounts that generate routine events
+# ============================================================================
+benign_users:
+  # Windows system accounts
+  system_accounts:
+    - "SYSTEM"
+    - "LOCAL SERVICE"
+    - "NETWORK SERVICE"
+    - "ANONYMOUS LOGON"
+    - "DWM-1"
+    - "DWM-2"
+    - "DWM-3"
+    - "UMFD-0"
+    - "UMFD-1"
+    - "UMFD-2"
+
+  # Machine accounts (end with $)
+  machine_account_pattern: ".*\\$$"
+
+  # Service accounts pattern
+  service_account_patterns:
+    - "^svc_.*"
+    - "^SVC.*"
+    - ".*_svc$"
+    - "^NT AUTHORITY\\\\.*"
+    - "^NT SERVICE\\\\.*"
+
+  # Suppress local interactive logins from these
+  suppress_local_logon:
+    - "Administrator"
+    - "DefaultAccount"
+    - "Guest"
+    - "WDAGUtilityAccount"
+
+# ============================================================================
+# Benign Source IPs/Hosts - Known safe sources for remote connections
+# ============================================================================
+benign_sources:
+  # Localhost
+  localhost:
+    - "127.0.0.1"
+    - "::1"
+    - "-"
+    - ""
+
+  # Private network ranges (adjust for your environment)
+  private_ranges:
+    ranges:
+      - "10.0.0.0/8"
+      - "172.16.0.0/12"
+      - "192.168.0.0/16"
+    suppress_rdp: false  # Still flag RDP from private IPs
+    suppress_network: true  # Suppress network logons (type 3)
+
+  # Known management IPs (add your jump servers here)
+  management_hosts:
+    hosts: []
+    # Example entries:
+    # - "10.0.0.50"  # Admin workstation
+    # - "10.0.0.100" # Jump server
+    suppress_all: true
+
+  # Windows Update / Microsoft IPs
+  microsoft_update:
+    hostnames:
+      - "*.windowsupdate.com"
+      - "*.microsoft.com"
+      - "*.msftconnecttest.com"
+    suppress: true
+
+# ============================================================================
+# Event Filters - Specific filtering rules by event type
+# ============================================================================
+event_filters:
+  # Login Events (4624)
+  login_filters:
+    # Suppress service account logins
+    - rule_name: "service_logons"
+      event_id: 4624
+      logon_types: [5]  # Service logon
+      action: suppress
+
+    # Suppress batch logons
+    - rule_name: "batch_logons"
+      event_id: 4624
+      logon_types: [4]  # Batch logon
+      action: suppress
+
+    # Suppress cached credential logins
+    - rule_name: "cached_logons"
+      event_id: 4624
+      logon_types: [11]  # Cached interactive
+      action: suppress
+
+    # Suppress unlock events
+    - rule_name: "unlock_events"
+      event_id: 4624
+      logon_types: [7]  # Unlock
+      action: suppress
+
+    # Flag RDP logins (don't suppress)
+    - rule_name: "rdp_logons"
+      event_id: 4624
+      logon_types: [10]  # RemoteInteractive
+      action: flag
+      risk_level: medium
+
+    # Flag network logins from external IPs
+    - rule_name: "external_network_logons"
+      event_id: 4624
+      logon_types: [3]  # Network
+      source_not_in: ["127.0.0.1", "10.*", "172.16.*", "192.168.*"]
+      action: flag
+      risk_level: high
+
+  # Failed Login Events (4625)
+  failed_login_filters:
+    # Suppress single failed logins from known users
+    - rule_name: "single_failures"
+      event_id: 4625
+      threshold: 1
+      action: suppress
+
+    # Flag multiple failures (potential brute force)
+    - rule_name: "brute_force_detection"
+      event_id: 4625
+      threshold: 5
+      window_minutes: 10
+      action: flag
+      risk_level: high
+
+  # Service Installation Events (7045/4697)
+  service_filters:
+    # Suppress known Microsoft services
+    - rule_name: "microsoft_services"
+      event_ids: [7045, 4697]
+      publisher_pattern: "Microsoft*"
+      signed: true
+      action: suppress
+
+    # Suppress known third-party signed services
+    - rule_name: "signed_third_party"
+      event_ids: [7045, 4697]
+      signed: true
+      publisher_in:
+        - "Google LLC"
+        - "Adobe Inc."
+        - "VMware, Inc."
+        - "Oracle Corporation"
+        - "Apple Inc."
+      action: suppress
+
+    # Flag unsigned services
+    - rule_name: "unsigned_services"
+      event_ids: [7045, 4697]
+      signed: false
+      action: flag
+      risk_level: high
+
+    # Flag services from temp directories
+    - rule_name: "temp_services"
+      event_ids: [7045, 4697]
+      path_pattern: "*\\Temp\\*"
+      action: flag
+      risk_level: critical
+
+  # Process Creation Events (4688)
+  process_filters:
+    # Suppress routine Windows processes
+    - rule_name: "windows_system_processes"
+      event_id: 4688
+      path_patterns:
+        - "C:\\Windows\\System32\\*"
+        - "C:\\Windows\\SysWOW64\\*"
+      signed: true
+      action: suppress
+
+    # Flag processes from user temp
+    - rule_name: "user_temp_processes"
+      event_id: 4688
+      path_pattern: "*\\AppData\\Local\\Temp\\*"
+      action: flag
+      risk_level: medium
+
+# ============================================================================
+# Noise Suppression Thresholds
+# ============================================================================
+noise_thresholds:
+  # Events per hour before considered noise
+  events_per_hour:
+    4624: 100  # Many logins normal in active environment
+    4625: 10   # More than 10 failures/hour is suspicious
+    4634: 200  # Logoffs are routine
+    7036: 50   # Service state changes
+
+  # Auto-suppress if count exceeds threshold in window
+  auto_suppress:
+    enabled: true
+    window_minutes: 60
+
+  # Minimum risk level to always show
+  min_display_risk: "medium"
+
+# ============================================================================
+# AI-Suggested Rules (Auto-generated from scan analysis)
+# ============================================================================
+ai_suggested_rules:
+  enabled: true
+  auto_add: false  # Require user approval before adding
+
+  # Rules suggested by analyzing scan patterns
+  suggestions:
+    # Example: Rule suggested after proxy scan detected routine events
+    # - rule_name: "auto_rdp_internal"
+    #   description: "AI-suggested: Frequent RDP from 192.168.1.100"
+    #   event_id: 4624
+    #   logon_type: 10
+    #   source_ip: "192.168.1.100"
+    #   action: suppress
+    #   confidence: 0.85
+    #   suggested_at: "2026-01-21T10:00:00"
+    #   reason: "50+ identical events in 24h from same source"
+
+# ============================================================================
+# Quick Filters - Preset filter combinations for common scenarios
+# ============================================================================
+quick_filters:
+  # Show only security-relevant events
+  security_focus:
+    name: "Security Focus"
+    description: "Show only security-relevant events"
+    suppress_benign_users: true
+    suppress_benign_events: true
+    min_risk: "low"
+
+  # Show only high/critical events
+  critical_only:
+    name: "Critical Only"
+    description: "Only critical and high-risk events"
+    min_risk: "high"
+    suppress_all_low: true
+    suppress_all_medium: true
+
+  # Hunting mode - show more events
+  threat_hunting:
+    name: "Threat Hunting"
+    description: "Minimal suppression for threat hunting"
+    suppress_benign_users: true
+    suppress_benign_events: false
+    show_all_remote: true
+
+  # Compliance mode - detailed logging
+  compliance:
+    name: "Compliance"
+    description: "Full event logging for compliance"
+    suppress_benign_users: false
+    suppress_benign_events: false
+    min_risk: "info"
+
+# ============================================================================
+# Statistics Tracking
+# ============================================================================
+statistics:
+  # Track suppression rates
+  track_suppression: true
+
+  # Log suppressed event counts by type
+  log_suppressed_counts: true
+
+  # Alert if suppression rate changes dramatically
+  alert_on_pattern_change: true
+  pattern_change_threshold: 0.20  # 20% change triggers alert

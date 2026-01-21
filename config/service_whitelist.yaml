@@ -1,0 +1,190 @@
+# BisonTitan Service Whitelist
+# Known legitimate services to suppress false positives
+# Sprint 5 - Verbose Logs feature
+#
+# Categories:
+#   microsoft: Built-in Windows/Microsoft services
+#   third_party_signed: Known signed third-party services
+#   custom: User-defined trusted services
+#
+# Fields:
+#   name: Service name (case-insensitive match)
+#   display_name: Optional display name pattern
+#   binary_pattern: Glob pattern for expected binary path
+#   publisher: Expected certificate publisher
+#   risk_override: Override risk level (low, medium, high)
+#   notes: Human-readable notes
+
+# Microsoft/Windows built-in services
+microsoft:
+  - name: "WSearch"
+    display_name: "Windows Search"
+    binary_pattern: "C:\\Windows\\System32\\SearchIndexer.exe"
+    publisher: "Microsoft Windows"
+    risk_override: "low"
+
+  - name: "wuauserv"
+    display_name: "Windows Update"
+    binary_pattern: "C:\\Windows\\System32\\svchost.exe"
+    publisher: "Microsoft Windows"
+    risk_override: "low"
+
+  - name: "BITS"
+    display_name: "Background Intelligent Transfer Service"
+    binary_pattern: "C:\\Windows\\System32\\svchost.exe"
+    publisher: "Microsoft Windows"
+    risk_override: "low"
+
+  - name: "Spooler"
+    display_name: "Print Spooler"
+    binary_pattern: "C:\\Windows\\System32\\spoolsv.exe"
+    publisher: "Microsoft Windows"
+    risk_override: "low"
+
+  - name: "W32Time"
+    display_name: "Windows Time"
+    binary_pattern: "C:\\Windows\\System32\\svchost.exe"
+    publisher: "Microsoft Windows"
+    risk_override: "low"
+
+  - name: "Dnscache"
+    display_name: "DNS Client"
+    binary_pattern: "C:\\Windows\\System32\\svchost.exe"
+    publisher: "Microsoft Windows"
+    risk_override: "low"
+
+  - name: "EventLog"
+    display_name: "Windows Event Log"
+    binary_pattern: "C:\\Windows\\System32\\svchost.exe"
+    publisher: "Microsoft Windows"
+    risk_override: "low"
+
+  - name: "PlugPlay"
+    display_name: "Plug and Play"
+    binary_pattern: "C:\\Windows\\System32\\svchost.exe"
+    publisher: "Microsoft Windows"
+    risk_override: "low"
+
+  - name: "Dhcp"
+    display_name: "DHCP Client"
+    binary_pattern: "C:\\Windows\\System32\\svchost.exe"
+    publisher: "Microsoft Windows"
+    risk_override: "low"
+
+  - name: "Winmgmt"
+    display_name: "Windows Management Instrumentation"
+    binary_pattern: "C:\\Windows\\System32\\svchost.exe"
+    publisher: "Microsoft Windows"
+    risk_override: "low"
+
+  - name: "mpssvc"
+    display_name: "Windows Defender Firewall"
+    binary_pattern: "C:\\Windows\\System32\\svchost.exe"
+    publisher: "Microsoft Windows"
+    risk_override: "low"
+
+  - name: "WinDefend"
+    display_name: "Microsoft Defender Antivirus Service"
+    binary_pattern: "C:\\ProgramData\\Microsoft\\Windows Defender\\*"
+    publisher: "Microsoft Corporation"
+    risk_override: "low"
+
+  - name: "SecurityHealthService"
+    display_name: "Windows Security Service"
+    binary_pattern: "C:\\Windows\\System32\\SecurityHealthService.exe"
+    publisher: "Microsoft Windows"
+    risk_override: "low"
+
+# Known signed third-party services (common legitimate software)
+third_party_signed:
+  - name: "gupdate"
+    display_name: "Google Update Service"
+    binary_pattern: "C:\\Program Files*\\Google\\Update\\*"
+    publisher: "Google LLC"
+    risk_override: "low"
+
+  - name: "edgeupdate"
+    display_name: "Microsoft Edge Update Service"
+    binary_pattern: "C:\\Program Files*\\Microsoft\\EdgeUpdate\\*"
+    publisher: "Microsoft Corporation"
+    risk_override: "low"
+
+  - name: "AdobeARMservice"
+    display_name: "Adobe Acrobat Update Service"
+    binary_pattern: "C:\\Program Files*\\Common Files\\Adobe\\ARM\\*"
+    publisher: "Adobe Inc."
+    risk_override: "low"
+
+  - name: "Bonjour Service"
+    display_name: "Bonjour Service"
+    binary_pattern: "C:\\Program Files*\\Bonjour\\mDNSResponder.exe"
+    publisher: "Apple Inc."
+    risk_override: "low"
+
+  - name: "postgresql*"
+    display_name: "PostgreSQL Server"
+    binary_pattern: "C:\\Program Files\\PostgreSQL\\*"
+    publisher: "PostgreSQL Global Development Group"
+    risk_override: "low"
+    notes: "Database server - verify if expected"
+
+  - name: "MSSQL*"
+    display_name: "Microsoft SQL Server"
+    binary_pattern: "C:\\Program Files\\Microsoft SQL Server\\*"
+    publisher: "Microsoft Corporation"
+    risk_override: "low"
+    notes: "Database server - verify if expected"
+
+  - name: "VMware*"
+    display_name: "VMware Services"
+    binary_pattern: "C:\\Program Files*\\VMware\\*"
+    publisher: "VMware, Inc."
+    risk_override: "low"
+    notes: "Virtualization services"
+
+  - name: "VBox*"
+    display_name: "VirtualBox Services"
+    binary_pattern: "C:\\Program Files*\\Oracle\\VirtualBox\\*"
+    publisher: "Oracle Corporation"
+    risk_override: "low"
+    notes: "Virtualization services"
+
+# User-defined custom services
+# Add your organization's trusted services here
+custom:
+  # Example:
+  # - name: "MyCompanyAgent"
+  #   display_name: "My Company Monitoring Agent"
+  #   binary_pattern: "C:\\Program Files\\MyCompany\\*"
+  #   publisher: "My Company Inc."
+  #   risk_override: "low"
+  #   notes: "Internal monitoring agent"
+
+# Suspicious patterns - services matching these are always flagged
+suspicious_patterns:
+  # Binary paths that are commonly used by malware
+  paths:
+    - "C:\\Users\\*\\AppData\\Local\\Temp\\*"
+    - "C:\\Windows\\Temp\\*"
+    - "C:\\ProgramData\\*\\*.exe"  # Unusual location
+    - "*\\cmd.exe"
+    - "*\\powershell.exe"
+    - "*\\mshta.exe"
+    - "*\\wscript.exe"
+    - "*\\cscript.exe"
+    - "*\\regsvr32.exe"
+    - "*\\rundll32.exe"
+
+  # Service names commonly used by malware
+  names:
+    - "svchost"  # Legitimate svchost only in System32
+    - "csrss"
+    - "lsass"
+    - "smss"
+    - "winlogon"
+    - "services"
+
+  # Startup types that are suspicious for certain services
+  startup_suspicious:
+    - auto_start_from_temp: true
+    - kernel_driver_unsigned: true

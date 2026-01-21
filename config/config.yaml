@@ -1,0 +1,133 @@
+# BisonTitan Security Suite Configuration
+# Copy this file to config/config.yaml and customize for your environment
+
+# Global settings
+log_file: "logs/bisontitan.log"
+log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+require_admin: false
+
+# File and Process Scanner Configuration
+scanner:
+  yara_rules_dir: "config/rules"
+  quarantine_dir: "quarantine"
+  hash_check_enabled: true
+  yara_scan_enabled: true
+  scan_archives: false
+  max_file_size_mb: 100
+
+  # Paths to exclude from scanning (glob patterns)
+  excluded_paths:
+    - "C:\\Windows\\WinSxS\\*"
+    - "C:\\Windows\\System32\\DriverStore\\*"
+    - "/proc/*"
+    - "/sys/*"
+
+  # File extensions to skip
+  excluded_extensions:
+    - ".dll"
+    - ".sys"
+    - ".log"
+
+  # Known malware hashes (SHA256) - add your own threat intel
+  known_malware_hashes:
+    # Example: WannaCry ransomware hash
+    # - "24d004a104d4d54034dbcffc2a4b19a11f39008a575aa614ea04703480b1022c"
+
+# Network Traffic Analyzer Configuration
+traffic:
+  capture_duration_sec: 5
+  interface: null  # null = auto-detect, or specify like "eth0" or "Ethernet"
+
+  # Your trusted proxy/VPN IPs - won't be flagged as suspicious
+  proxy_whitelist:
+    # - "your-vps-ip-here"
+    # - "10.0.0.1"
+
+  # Domains considered safe
+  trusted_domains:
+    - "microsoft.com"
+    - "windows.com"
+    - "google.com"
+    - "github.com"
+    - "cloudflare.com"
+
+  # Ports commonly used by malware (will trigger alerts)
+  high_risk_ports:
+    - 4444   # Metasploit default
+    - 5555   # Common RAT port
+    - 6666   # IRC bots
+    - 31337  # Back Orifice
+    - 12345  # NetBus
+    - 6667   # IRC
+    - 6697   # IRC SSL
+    - 1337   # Elite/leet port
+
+  # Optional: AbuseIPDB API key for threat intelligence
+  abuseipdb_api_key: null
+  enable_threat_feeds: false
+
+# Browser Fingerprint Viewer Configuration
+fingerprint:
+  browser_type: "chromium"  # chromium, firefox, webkit
+  headless: true
+  user_agent: null  # null = use default, or specify custom UA
+  viewport_width: 1920
+  viewport_height: 1080
+  proxy: null  # Format: "http://user:pass@host:port"
+
+# Windows Event Log Analyzer Configuration
+log_analyzer:
+  event_logs:
+    - "Security"
+    - "System"
+    - "Application"
+
+  # Alert if more than X failed logins in time window
+  failed_login_threshold: 5
+  time_window_minutes: 15
+
+  # Alert on any admin account login
+  alert_on_admin_login: true
+
+  # Users to exclude from monitoring
+  excluded_users:
+    - "SYSTEM"
+    - "LOCAL SERVICE"
+    - "NETWORK SERVICE"
+
+# Vulnerability Checker Configuration
+vuln_checker:
+  # Targets to scan (localhost only by default for safety)
+  target_hosts:
+    - "127.0.0.1"
+
+  # Port range to scan
+  port_ranges: "1-1024,3389,5985,5986"
+
+  # Specific vulnerability checks
+  check_netbios: true   # Ports 137-139
+  check_smb: true       # Port 445
+  check_rdp: true       # Port 3389
+
+  # Nmap arguments (be careful with aggressive scans)
+  nmap_arguments: "-sV -sC --script=safe"
+
+# Attack Simulation Configuration
+attack_sim:
+  # Available: port_scan, smb_probe, weak_auth, dns_enum
+  enabled_scenarios:
+    - "port_scan"
+    - "smb_probe"
+    - "weak_auth"
+
+  # Target for simulations (ONLY use localhost or authorized targets)
+  target_host: "127.0.0.1"
+
+  # Safe mode prevents any potentially harmful actions
+  safe_mode: true
+
+  # Output directory for reports
+  output_dir: "reports"
+
+  # Require user confirmation before each simulation
+  require_confirmation: true

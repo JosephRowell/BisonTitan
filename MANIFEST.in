@@ -1,0 +1,77 @@
+# =============================================================================
+# BisonTitan MANIFEST.in
+# Specifies additional files to include in source distributions (sdist)
+# =============================================================================
+
+# Include essential project files
+include LICENSE
+include README.md
+include CHANGELOG.md
+include pyproject.toml
+include setup.py
+include requirements.txt
+
+# Include build/packaging files
+include bisontitan.spec
+include build.bat
+include build.sh
+include Makefile
+
+# Include configuration examples
+include *.yaml
+include *.yml
+recursive-include examples *.md
+recursive-include examples *.csv
+recursive-include examples *.json
+recursive-include examples *.yaml
+
+# Include YARA rules
+recursive-include src/bisontitan/rules *.yar
+recursive-include src/bisontitan/rules *.yara
+
+# Include data files
+recursive-include src/bisontitan/data *.json
+recursive-include src/bisontitan/data *.yaml
+recursive-include src/bisontitan/data *.csv
+
+# Include GUI templates/assets
+recursive-include src/bisontitan/gui *.py
+recursive-include src/bisontitan/gui *.html
+recursive-include src/bisontitan/gui *.css
+recursive-include src/bisontitan/gui *.js
+
+# Include test files
+recursive-include tests *.py
+recursive-include tests *.csv
+recursive-include tests *.json
+recursive-include tests *.yaml
+
+# Include type hints
+include src/bisontitan/py.typed
+
+# Include documentation
+recursive-include docs *.md
+recursive-include docs *.rst
+recursive-include docs *.txt
+
+# Exclude unwanted files
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude __pycache__
+global-exclude *.egg-info
+global-exclude .git*
+global-exclude .DS_Store
+global-exclude *.swp
+global-exclude *.bak
+global-exclude *~
+
+# Exclude build directories
+prune build
+prune dist
+prune .eggs
+prune *.egg-info
+prune .tox
+prune .pytest_cache
+prune .mypy_cache
+prune .ruff_cache
+prune __pycache__

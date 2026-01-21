@@ -1,0 +1,93 @@
+# =============================================================================
+# BisonTitan Cloudflare Pages Configuration
+# =============================================================================
+#
+# IMPORTANT: Streamlit requires a persistent server with WebSocket support.
+# Cloudflare Pages is for static sites + serverless functions.
+#
+# DEPLOYMENT OPTIONS:
+#
+# 1. RECOMMENDED: Streamlit Cloud (FREE)
+#    - Native Streamlit hosting
+#    - Connect GitHub repo → auto-deploy
+#    - URL: https://share.streamlit.io
+#    - See: deploy/streamlit_cloud.md
+#
+# 2. Cloudflare Pages (this config)
+#    - Static landing page + API functions
+#    - Redirect /dashboard to Streamlit Cloud instance
+#    - API endpoints via Cloudflare Workers
+#
+# 3. Docker + Cloud Run / Railway / Render
+#    - Full Streamlit server
+#    - See: deploy/Dockerfile
+#
+# =============================================================================
+
+name = "bisontitan"
+main = "src/bisontitan/gui/app.py"
+compatibility_date = "2026-01-18"
+
+# Account ID (set via CLOUDFLARE_ACCOUNT_ID env var or uncomment)
+account_id = "98f903aff4dd65f60a34b285b6050ab8"
+
+# =============================================================================
+# Pages Configuration
+# =============================================================================
+#[site]
+#bucket = "./public"
+
+# =============================================================================
+# Environment Variables
+# =============================================================================
+#[vars]
+#BISONTITAN_ENV = "production"
+# API key for authenticated endpoints (set in Cloudflare dashboard for secrets)
+# BISONTITAN_API_KEY = "set-in-dashboard"
+
+# =============================================================================
+# Routes
+# =============================================================================
+# Main routes handled by Pages
+# /                    → Landing page (public/index.html)
+# /privacy-check       → Redirect to Streamlit dashboard
+# /dashboard           → Redirect to Streamlit Cloud
+# /api/*               → Cloudflare Workers functions
+
+# =============================================================================
+# Workers Routes (API endpoints)
+# =============================================================================
+[[routes]]
+pattern = "privacy-check/*"
+custom_domain = "bisontitan.com"
+
+# =============================================================================
+# Redirects (handled in _redirects file)
+# =============================================================================
+# See: public/_redirects
+
+# =============================================================================
+# Headers (security)
+# =============================================================================
+# See: public/_headers
+
+# =============================================================================
+# Build Configuration
+# =============================================================================
+[build]
+command = "streamlit build src/bisontitan/gui/app.py"
+output_directory = "deploy/public"
+
+[build.upload]
+format = "modules"
+
+# =============================================================================
+# Development
+# =============================================================================
+[dev]
+port = 8788
+local_protocol = "http"
+
+
+[env.production.vars]
+STREAMLIT_SERVER_PORT = "8080"

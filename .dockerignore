@@ -1,0 +1,62 @@
+# =============================================================================
+# BisonTitan Docker Ignore
+# =============================================================================
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Tests (optional - uncomment to exclude)
+# tests/
+
+# Deployment configs (not needed in container)
+deploy/
+wrangler.toml
+
+# Development files
+.env.local
+.dev.vars
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Secrets (NEVER include)
+.env
+*.key
+*.pem
+*.p12
+credentials.json
+secrets.yaml

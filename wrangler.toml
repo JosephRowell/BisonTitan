@@ -1,0 +1,14 @@
+# =============================================================================
+# BisonTitan Cloudflare Pages Configuration
+# =============================================================================
+# Deploy: wrangler pages deploy deploy/public --project-name=bisontitan
+# =============================================================================
+
+name = "bisontitan"
+compatibility_date = "2024-01-15"
+
+# Account ID must be quoted (string value)
+account_id = "98903affd6f0a4285e6ba8b"
+
+# Pages config - no [[routes]], no python_workers, no main
+# Routing handled by deploy/public/_redirects
